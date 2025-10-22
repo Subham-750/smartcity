@@ -1,0 +1,547 @@
+--Database design for smart city:
+--------------------------------
+--Roads
+CREATE TABLE roads (
+  road_id BIGSERIAL PRIMARY KEY,
+  road_type TEXT,            
+  lanes SMALLINT,
+  surface_type TEXT,
+  speed_limit_kmph SMALLINT,
+  geom geometry(Geometry,4326) NOT NULL
+);
+INSERT INTO roads (road_type, lanes, surface_type, speed_limit_kmph, geom) VALUES
+('arterial', 4, 'asphalt', 60, ST_GeomFromText('LINESTRING(-85.15 39.86, -85.05 39.86)', 4326)),
+('collector', 2, 'asphalt', 50, ST_GeomFromText('LINESTRING(-85.10 39.84, -85.10 39.90)', 4326)),
+('local', 2, 'concrete', 40, ST_GeomFromText('LINESTRING(-85.12 39.87, -85.08 39.87)', 4326)),
+('arterial', 6, 'asphalt', 70, ST_GeomFromText('LINESTRING(-85.18 39.88, -85.02 39.88)', 4326)),
+('collector', 2, 'asphalt', 50, ST_GeomFromText('LINESTRING(-85.14 39.92, -85.06 39.92)', 4326)),
+('local', 2, 'asphalt', 30, ST_GeomFromText('LINESTRING(-85.16 39.85, -85.16 39.89)', 4326)),
+('arterial', 4, 'concrete', 60, ST_GeomFromText('LINESTRING(-85.08 39.85, -85.08 39.95)', 4326)),
+('collector', 2, 'asphalt', 50, ST_GeomFromText('LINESTRING(-85.13 39.83, -85.07 39.83)', 4326)),
+('local', 1, 'gravel', 30, ST_GeomFromText('LINESTRING(-85.11 39.91, -85.09 39.91)', 4326)),
+('arterial', 4, 'asphalt', 60, ST_GeomFromText('LINESTRING(-85.04 39.90, -85.04 39.84)', 4326));
+
+--Hospitals
+CREATE TABLE hospitals (
+  hospital_id BIGSERIAL PRIMARY KEY,
+  capacity_beds INTEGER,
+  emergency BOOLEAN DEFAULT true,
+  contact_phone TEXT,
+  address TEXT,
+  geom geometry(Geometry,4326) 
+);
+INSERT INTO hospitals (capacity_beds, emergency, contact_phone, address, geom) VALUES
+(250, true, '555-1001', '123 Medical Center Dr', ST_GeomFromText('POINT(-85.12 39.87)', 4326)),
+(180, true, '555-1002', '456 Health Ave', ST_GeomFromText('POINT(-85.08 39.88)', 4326)),
+(300, true, '555-1003', '789 Emergency Rd', ST_GeomFromText('POINT(-85.10 39.90)', 4326)),
+(120, false, '555-1004', '321 Specialty St', ST_GeomFromText('POINT(-85.14 39.86)', 4326)),
+(200, true, '555-1005', '654 General Blvd', ST_GeomFromText('POINT(-85.06 39.89)', 4326)),
+(150, true, '555-1006', '987 Trauma Way', ST_GeomFromText('POINT(-85.11 39.91)', 4326)),
+(90, false, '555-1007', '147 Clinic Cir', ST_GeomFromText('POINT(-85.09 39.85)', 4326)),
+(220, true, '555-1008', '258 Medical Pl', ST_GeomFromText('POINT(-85.13 39.92)', 4326)),
+(170, true, '555-1009', '369 Health Ln', ST_GeomFromText('POINT(-85.07 39.87)', 4326)),
+(110, false, '555-1010', '741 Care Ct', ST_GeomFromText('POINT(-85.15 39.89)', 4326));
+
+
+--Schools
+CREATE TABLE schools (
+  school_id BIGSERIAL PRIMARY KEY,
+  type TEXT, -- primary, secondary, higher
+  student_capacity INTEGER,
+  address TEXT,
+  geom geometry(Geometry,4326)
+);
+INSERT INTO schools (type, student_capacity, address, geom) VALUES
+('primary', 500, '123 Learning Ln', ST_GeomFromText('POINT(-85.09 39.87)', 4326)),
+('secondary', 800, '456 Education Ave', ST_GeomFromText('POINT(-85.13 39.89)', 4326)),
+('higher', 2000, '789 University Dr', ST_GeomFromText('POINT(-85.07 39.92)', 4326)),
+('primary', 400, '321 Elementary St', ST_GeomFromText('POINT(-85.11 39.85)', 4326)),
+('secondary', 600, '654 High School Rd', ST_GeomFromText('POINT(-85.15 39.91)', 4326)),
+('primary', 350, '987 Primary Way', ST_GeomFromText('POINT(-85.05 39.88)', 4326)),
+('higher', 1500, '147 College Cir', ST_GeomFromText('POINT(-85.12 39.93)', 4326)),
+('secondary', 700, '258 Academy Blvd', ST_GeomFromText('POINT(-85.08 39.84)', 4326)),
+('primary', 450, '369 Learning Ct', ST_GeomFromText('POINT(-85.14 39.87)', 4326)),
+('higher', 1800, '741 Campus Dr', ST_GeomFromText('POINT(-85.06 39.90)', 4326));
+
+--parks
+CREATE TABLE parks (
+  park_id BIGSERIAL PRIMARY KEY,
+  park_type TEXT,
+  area_m2 DOUBLE PRECISION,
+  amenities TEXT[], 
+  geom geometry(Geometry,4326) NOT NULL
+);
+INSERT INTO parks (park_type, area_m2, amenities, geom) VALUES
+('Urban', 50000, '{"playground","picnic","restrooms"}', ST_GeomFromText('POLYGON((-85.11 39.86, -85.09 39.86, -85.09 39.88, -85.11 39.88, -85.11 39.86))', 4326)),
+('Regional', 150000, '{"trails","sports fields","pond"}', ST_GeomFromText('POLYGON((-85.16 39.89, -85.12 39.89, -85.12 39.93, -85.16 39.93, -85.16 39.89))', 4326)),
+('Neighborhood', 25000, '{"playground","benches"}', ST_GeomFromText('POLYGON((-85.07 39.91, -85.05 39.91, -85.05 39.93, -85.07 39.93, -85.07 39.91))', 4326)),
+('Botanical', 80000, '{"gardens","greenhouse","cafe"}', ST_GeomFromText('POLYGON((-85.14 39.94, -85.10 39.94, -85.10 39.96, -85.14 39.96, -85.14 39.94))', 4326)),
+('Sports', 45000, '{"baseball","soccer","tennis"}', ST_GeomFromText('POLYGON((-85.04 39.87, -85.02 39.87, -85.02 39.89, -85.04 39.89, -85.04 39.87))', 4326)),
+('Riverfront', 120000, '{"boat launch","fishing","trails"}', ST_GeomFromText('POLYGON((-85.18 39.85, -85.14 39.85, -85.14 39.89, -85.18 39.89, -85.18 39.85))', 4326)),
+('Memorial', 30000, '{"monument","gardens","fountain"}', ST_GeomFromText('POLYGON((-85.08 39.94, -85.06 39.94, -85.06 39.96, -85.08 39.96, -85.08 39.94))', 4326)),
+('Community', 35000, '{"pool","playground","picnic"}', ST_GeomFromText('POLYGON((-85.12 39.83, -85.10 39.83, -85.10 39.85, -85.12 39.85, -85.12 39.83))', 4326)),
+('Nature Preserve', 200000, '{"hiking","wildlife","education"}', ST_GeomFromText('POLYGON((-85.20 39.91, -85.16 39.91, -85.16 39.95, -85.20 39.95, -85.20 39.91))', 4326)),
+('Dog Park', 15000, '{"dog areas","agility course"}', ST_GeomFromText('POLYGON((-85.06 39.84, -85.04 39.84, -85.04 39.86, -85.06 39.86, -85.06 39.84))', 4326));
+
+--Water bodies
+CREATE TABLE water_bodies (
+  water_id BIGSERIAL PRIMARY KEY,
+  wb_type TEXT, -- lake, river, pond, stream
+  area_m2 DOUBLE PRECISION,
+  name TEXT,
+  geom geometry(Geometry,4326) -- allow polygon or linestring
+);
+INSERT INTO water_bodies (wb_type, area_m2, name, geom) VALUES
+('lake', 250000, 'Crystal Lake', ST_GeomFromText('POLYGON((-85.17 39.87, -85.13 39.87, -85.13 39.91, -85.17 39.91, -85.17 39.87))', 4326)),
+('river', 50000, 'Blue River', ST_GeomFromText('LINESTRING(-85.20 39.84, -85.00 39.84)', 4326)),
+('pond', 15000, 'Frog Pond', ST_GeomFromText('POLYGON((-85.08 39.93, -85.06 39.93, -85.06 39.95, -85.08 39.95, -85.08 39.93))', 4326)),
+('stream', 8000, 'Willow Creek', ST_GeomFromText('LINESTRING(-85.16 39.94, -85.10 39.94, -85.10 39.98)', 4326)),
+('lake', 180000, 'Serene Lake', ST_GeomFromText('POLYGON((-85.03 39.85, -84.99 39.85, -84.99 39.89, -85.03 39.89, -85.03 39.85))', 4326)),
+('pond', 12000, 'Duck Pond', ST_GeomFromText('POLYGON((-85.12 39.95, -85.10 39.95, -85.10 39.97, -85.12 39.97, -85.12 39.95))', 4326)),
+('river', 75000, 'Swift River', ST_GeomFromText('LINESTRING(-85.19 39.96, -85.09 39.96, -85.09 39.90)', 4326)),
+('lake', 95000, 'Mirror Lake', ST_GeomFromText('POLYGON((-85.05 39.91, -85.01 39.91, -85.01 39.95, -85.05 39.95, -85.05 39.91))', 4326)),
+('stream', 6000, 'Babbling Brook', ST_GeomFromText('LINESTRING(-85.14 39.82, -85.08 39.82, -85.08 39.86)', 4326)),
+('pond', 20000, 'Lily Pond', ST_GeomFromText('POLYGON((-85.07 39.89, -85.05 39.89, -85.05 39.91, -85.07 39.91, -85.07 39.89))', 4326));
+
+--city boundary
+CREATE TABLE city_boundary (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  geom geometry(Geometry,4326) NOT NULL,
+  last_updated TIMESTAMPTZ DEFAULT now()
+);
+INSERT INTO city_boundary (name, geom) VALUES
+('Springfield', ST_GeomFromText('POLYGON((-85.15 39.85, -85.05 39.85, -85.05 39.95, -85.15 39.95, -85.15 39.85))', 4326)),
+('Riverside', ST_GeomFromText('POLYGON((-85.25 39.75, -85.15 39.75, -85.15 39.85, -85.25 39.85, -85.25 39.75))', 4326)),
+('Oakdale', ST_GeomFromText('POLYGON((-85.35 39.65, -85.25 39.65, -85.25 39.75, -85.35 39.75, -85.35 39.65))', 4326)),
+('Mapleton', ST_GeomFromText('POLYGON((-85.45 39.55, -85.35 39.55, -85.35 39.65, -85.45 39.65, -85.45 39.55))', 4326)),
+('Pineville', ST_GeomFromText('POLYGON((-85.55 39.45, -85.45 39.45, -85.45 39.55, -85.55 39.55, -85.55 39.45))', 4326)),
+('Cedar Grove', ST_GeomFromText('POLYGON((-85.65 39.35, -85.55 39.35, -85.55 39.45, -85.65 39.45, -85.65 39.35))', 4326)),
+('Elmwood', ST_GeomFromText('POLYGON((-85.75 39.25, -85.65 39.25, -85.65 39.35, -85.75 39.35, -85.75 39.25))', 4326)),
+('Willow Creek', ST_GeomFromText('POLYGON((-85.85 39.15, -85.75 39.15, -85.75 39.25, -85.85 39.25, -85.85 39.15))', 4326)),
+('Brookfield', ST_GeomFromText('POLYGON((-85.95 39.05, -85.85 39.05, -85.85 39.15, -85.95 39.15, -85.95 39.05))', 4326)),
+('Hillcrest', ST_GeomFromText('POLYGON((-86.05 38.95, -85.95 38.95, -85.95 39.05, -86.05 39.05, -86.05 38.95))', 4326));
+
+--asset_types
+CREATE TABLE asset_types (
+  asset_type_id SMALLINT PRIMARY KEY,
+  type_name TEXT NOT NULL UNIQUE, --'road','hospital','school','park','water_body','other'
+  description TEXT
+);
+INSERT INTO asset_types (asset_type_id, type_name, description) VALUES
+(1, 'road', 'City roads and streets'),
+(2, 'hospital', 'Hospitals and medical centers'),
+(3, 'school', 'Schools and educational institutions'),
+(4, 'park', 'Parks and playgrounds'),
+(5, 'water_body', 'Lakes, ponds, rivers'),
+(6, 'other', 'Other city infrastructure')
+ON CONFLICT DO NOTHING;
+
+--assets
+CREATE TABLE assets (
+    asset_id BIGSERIAL PRIMARY KEY,
+    name TEXT,
+    asset_type_id SMALLINT REFERENCES asset_types(asset_type_id),
+    geom geometry(Geometry,4326)  -- location of the asset
+);
+-- Roads (represented as points for simplicity; in reality can be linestrings)
+INSERT INTO assets (name, asset_type_id, geom) VALUES
+('Main Street', 1, ST_SetSRID(ST_MakePoint(77.5946, 12.9716), 4326)),
+('MG Road', 1, ST_SetSRID(ST_MakePoint(77.6010, 12.9750), 4326));
+
+-- Hospitals
+INSERT INTO assets (name, asset_type_id, geom) VALUES
+('City Hospital', 2, ST_SetSRID(ST_MakePoint(77.5965, 12.9730), 4326)),
+('Central Hospital', 2, ST_SetSRID(ST_MakePoint(77.5980, 12.9775), 4326));
+
+-- Schools
+INSERT INTO assets (name, asset_type_id, geom) VALUES
+('High School 1', 3, ST_SetSRID(ST_MakePoint(77.5955, 12.9720), 4326)),
+('Elementary School 2', 3, ST_SetSRID(ST_MakePoint(77.5990, 12.9745), 4326));
+
+-- Parks
+INSERT INTO assets (name, asset_type_id, geom) VALUES
+('Central Park', 4, ST_SetSRID(ST_MakePoint(77.5970, 12.9755), 4326)),
+('Garden Park', 4, ST_SetSRID(ST_MakePoint(77.6005, 12.9780), 4326));
+
+-- Water bodies
+INSERT INTO assets (name, asset_type_id, geom) VALUES
+('Lake View', 5, ST_SetSRID(ST_MakePoint(77.6020, 12.9760), 4326)),
+('River Side', 5, ST_SetSRID(ST_MakePoint(77.6050, 12.9790), 4326));
+
+-- Other infrastructure
+INSERT INTO assets (name, asset_type_id, geom) VALUES
+('Power Substation', 6, ST_SetSRID(ST_MakePoint(77.6035, 12.9740), 4326)),
+('Water Pump Station', 6, ST_SetSRID(ST_MakePoint(77.6015, 12.9735), 4326));
+
+
+--create devivce and its location
+CREATE TABLE devices (
+    device_id BIGSERIAL PRIMARY KEY,
+    device_name TEXT NOT NULL,
+    device_type TEXT,        
+    owner TEXT,              
+    status TEXT DEFAULT 'active', 
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
+);
+INSERT INTO devices (device_name, device_type, owner)
+VALUES ('Vehicle Tracker 001', 'vehicle', 'City Transport Dept')
+RETURNING device_id;
+
+-- Auto-update updated_at
+CREATE OR REPLACE FUNCTION touch_updated_at()
+RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$;
+
+--trigger created for updating column in devices table named (updated_at)
+CREATE TRIGGER trig_devices_updated BEFORE UPDATE ON devices
+FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
+
+-- Device location history table
+CREATE TABLE device_locations (
+    location_id BIGSERIAL PRIMARY KEY,
+    device_id BIGINT NOT NULL REFERENCES devices(device_id) ON DELETE CASCADE,
+    location GEOGRAPHY(Point,4326) NOT NULL,  
+    speed_m_s DOUBLE PRECISION,               
+    heading_deg DOUBLE PRECISION,             
+    altitude_m DOUBLE PRECISION,               
+    accuracy_m DOUBLE PRECISION,               
+    recorded_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+INSERT INTO device_locations (device_id, location, speed_m_s, heading_deg)
+VALUES (1,ST_SetSRID(ST_MakePoint(77.5946, 12.9716), 4326)::geography,15.5,90);
+
+--Create a trigger or function to dynamically create partial tables according to creation time when the day changes.(Didnt understood properly)
+
+--Function to find nearest assets according to device_id and asset_typeid
+CREATE OR REPLACE FUNCTION find_nearest_assets (
+    p_device_id BIGINT,
+    p_asset_type_id SMALLINT,
+    p_buffer_zone DOUBLE PRECISION DEFAULT 5000  
+)
+RETURNS TABLE (
+    asset_id BIGINT,
+    name TEXT,
+    asset_type_id SMALLINT,
+    distance_m DOUBLE PRECISION
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    latest_location GEOGRAPHY(Point,4326);
+BEGIN
+    -- 1. Get the latest location of the device
+    SELECT location
+    INTO latest_location
+    FROM device_locations
+    WHERE device_id = p_device_id
+    ORDER BY recorded_at DESC
+    LIMIT 1;
+
+    IF latest_location IS NULL THEN
+        RAISE NOTICE 'No location found for device %', p_device_id;
+        RETURN;
+    END IF;
+
+    -- 2. Return assets within buffer, ordered by distance
+    RETURN QUERY
+    SELECT 
+        a.asset_id,
+        a.name,
+        a.asset_type_id,
+        ST_Distance(a.geom::geography, latest_location) AS distance_m
+    FROM assets a
+    WHERE a.asset_type_id = p_asset_type_id
+      AND ST_DWithin(a.geom::geography, latest_location, p_buffer_zone)
+    ORDER BY distance_m;
+END;
+$$;
+--Calling function
+SELECT smartcity.find_nearest_assets(1::bigint, 5::smallint);
+
+-- Spatial indexes to boost query performance. 
+CREATE INDEX idx_roads_geom ON roads USING GIST(geom);
+CREATE INDEX idx_hospitals_geom ON hospitals USING GIST(geom);
+CREATE INDEX idx_schools_geom ON schools USING GIST(geom);
+CREATE INDEX idx_parks_geom ON parks USING GIST(geom);
+CREATE INDEX idx_water_geom ON water_bodies USING GIST(geom);
+CREATE INDEX idx_city_boundary_geom ON city_boundary USING GIST(geom);
+CREATE INDEX idx_device_locations_geom_gist ON device_locations USING GIST(location);
+
+
+--Querries
+--Find all hospitals within 500m of a road.
+SELECT 
+    h.hospital_id,
+    h.address,
+    r.road_id,
+    r.road_type,
+    ST_Distance(h.geom::geography, r.geom::geography) as distance_meters
+FROM hospitals h CROSS JOIN roads r
+WHERE ST_DWithin(h.geom::geography, r.geom::geography, 500);
+
+--Find all schools inside parks
+SELECT 
+    s.school_id,
+    s.type AS school_type,
+    s.address AS school_address,
+    p.park_id,
+    p.park_type,
+    p.amenities
+FROM schools s
+JOIN parks p ON ST_Within(s.geom, p.geom);
+
+--Create a 1.2 km buffer around each hospital and find which schools fall inside it. 
+SELECT 
+    h.hospital_id,
+    h.address AS hospital_address,
+    h.capacity_beds,
+    s.school_id,
+    s.type AS school_type,
+    s.student_capacity,
+    s.address AS school_address,
+    ST_Distance(h.geom::geography, s.geom::geography) AS distance_meters
+FROM hospitals h
+JOIN schools s ON ST_DWithin(h.geom::geography, s.geom::geography, 1200);
+
+--Find the nearest hospital in each school
+SELECT DISTINCT ON (s.school_id)
+    s.school_id,
+    s.type AS school_type,
+    s.address AS school_address,
+    h.hospital_id,
+    h.address AS hospital_address,
+    h.emergency,
+    ST_Distance(s.geom::geography, h.geom::geography) AS distance_meters
+FROM schools s
+CROSS JOIN hospitals h
+ORDER BY s.school_id, distance_meters ASC;
+
+-- Clip roads that fall outside city boundary
+SELECT 
+    r.road_id,
+    r.road_type,
+    r.lanes,
+    r.surface_type,
+    r.speed_limit_kmph,
+    ST_Intersection(r.geom, c.geom) AS geom
+FROM roads r
+CROSS JOIN city_boundary c
+WHERE ST_Intersects(r.geom, c.geom);
+
+--Find overlapping water bodies and parks.
+SELECT 
+    p.park_id,
+    p.park_type,
+    p.area_m2 AS park_area,
+    w.water_id,
+    w.wb_type,
+    w.name AS water_body_name,
+    w.area_m2 AS water_area,
+    ST_Area(ST_Intersection(p.geom, w.geom)::geography) AS overlap_area_m2
+FROM parks p
+JOIN water_bodies w ON ST_Overlaps(p.geom, w.geom)
+ORDER BY overlap_area_m2 DESC;
+
+--Compute total length of roads inside each park.
+SELECT 
+    p.park_id,
+    p.park_type,
+    p.area_m2,
+    ROUND(SUM(ST_Length(ST_Intersection(r.geom, p.geom)::geography))::numeric, 2) AS total_road_length_m
+FROM parks p
+LEFT JOIN roads r ON ST_Intersects(r.geom, p.geom)
+GROUP BY p.park_id, p.park_type, p.area_m2
+ORDER BY total_road_length_m DESC NULLS LAST;
+
+--Find schools that are closer than 200m to a water body.
+SELECT 
+    s.school_id,
+    s.type AS school_type,
+    s.address AS school_address,
+    w.water_id,
+    w.wb_type,
+    w.name AS water_body_name,
+    ROUND(ST_Distance(s.geom::geography, w.geom::geography)::numeric, 2) AS distance_meters
+FROM schools s
+JOIN water_bodies w ON ST_DWithin(s.geom::geography, w.geom::geography, 200)
+ORDER BY distance_meters ASC;
+
+
+--find hospitals that are not accessable by any road
+SELECT 
+    h.hospital_id,
+    h.address AS hospital_address,
+    h.emergency,
+    h.capacity_beds,
+    h.contact_phone
+FROM hospitals h
+WHERE NOT EXISTS (
+    SELECT 1 
+    FROM roads r 
+    WHERE ST_DWithin(h.geom::geography, r.geom::geography, 100)
+);
+
+--Generate a polygon buffer of 300m around roads and find all schools within this buffer.
+SELECT 
+    r.road_id,
+    r.road_type,
+    r.speed_limit_kmph,
+    s.school_id,
+    s.type AS school_type,
+    s.address AS school_address,
+    ROUND(ST_Distance(s.geom::geography, r.geom::geography)::numeric, 2) AS distance_meters
+FROM roads r
+JOIN schools s ON ST_DWithin(s.geom::geography, r.geom::geography, 300)
+ORDER BY r.road_id, distance_meters ASC;
+
+--Count the number of hospitals in each city zone.
+SELECT 
+    c.id AS city_zone_id,
+    c.name AS city_zone_name,
+    COUNT(h.hospital_id) AS hospital_count
+FROM city_boundary c
+LEFT JOIN hospitals h ON ST_Within(h.geom, c.geom)
+GROUP BY c.id, c.name
+ORDER BY hospital_count DESC;
+
+--Find the largest water body by area.
+SELECT 
+    water_id,
+    name AS water_body_name,
+    wb_type,
+    ROUND(area_m2::numeric, 2) AS area_square_meters,
+    ROUND((area_m2 / 1000000)::numeric, 2) AS area_square_km,
+    geom
+FROM water_bodies
+ORDER BY area_m2 DESC
+LIMIT 1;
+
+--Merge overlapping park polygons into a single geometry.(Not understood properly)
+
+--Identify roads that cross water bodies.
+SELECT 
+    r.road_id,
+    r.road_type,
+    r.speed_limit_kmph,
+    w.water_id,
+    w.wb_type,
+    w.name AS water_body_name,
+    ST_Length(ST_Intersection(r.geom, w.geom)::geography) AS crossing_length_m
+FROM roads r
+JOIN water_bodies w ON ST_Crosses(r.geom, w.geom)
+ORDER BY crossing_length_m DESC;
+
+--Clip schools that fall outside the city boundary and create a new “valid_schools” table.
+CREATE TABLE valid_schools AS
+SELECT 
+    s.school_id,
+    s.type,
+    s.student_capacity,
+    s.address,
+    CASE 
+        WHEN ST_Within(s.geom, c.geom) THEN s.geom
+        ELSE ST_Intersection(s.geom, c.geom)
+    END AS geom
+FROM schools s
+CROSS JOIN city_boundary c
+WHERE ST_Intersects(s.geom, c.geom);
+
+
+--Add SRID (Spatial Reference ID): Use 4326 for all geometry columns.
+--Enable PostGIS Extension.
+--File is in .sql
+
+--Creating a audit_log_table for maintenance
+CREATE TABLE audit_logs (
+    audit_id BIGSERIAL PRIMARY KEY,
+    table_name TEXT NOT NULL,
+    operation TEXT NOT NULL,                -- INSERT, UPDATE, DELETE
+    record_id BIGINT,                       -- the primary key of affected row (if available)
+    changed_data JSONB,                     -- stores old/new record data
+    changed_by TEXT DEFAULT current_user,   -- who made the change
+    changed_at TIMESTAMPTZ DEFAULT now()
+);
+
+
+--creating trigger-function to track all the changes is been made to the base tables
+CREATE OR REPLACE FUNCTION audit_trigger_func()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    data JSONB;
+    diff JSONB;
+    pk_name TEXT := TG_ARGV[0];  -- primary key column name passed from trigger
+    pk_value TEXT;
+    col TEXT;
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        -- Capture PK value dynamically
+        EXECUTE format('SELECT ($1).%I::text', pk_name) INTO pk_value USING NEW;
+        data := jsonb_build_object('new', to_jsonb(NEW));
+
+    ELSIF TG_OP = 'UPDATE' THEN
+        EXECUTE format('SELECT ($1).%I::text', pk_name) INTO pk_value USING NEW;
+        -- Compute differences
+        diff := '{}'::jsonb;
+        FOR col IN SELECT column_name
+                   FROM information_schema.columns
+                   WHERE table_name = TG_TABLE_NAME
+        LOOP
+            IF to_jsonb(NEW)->col IS DISTINCT FROM to_jsonb(OLD)->col THEN
+                diff := diff || jsonb_build_object(col, jsonb_build_object('old', to_jsonb(OLD)->col, 'new', to_jsonb(NEW)->col));
+            END IF;
+        END LOOP;
+        data := jsonb_build_object('changed_columns', diff);
+
+    ELSIF TG_OP = 'DELETE' THEN
+        EXECUTE format('SELECT ($1).%I::text', pk_name) INTO pk_value USING OLD;
+        data := jsonb_build_object('old', to_jsonb(OLD));
+    END IF;
+
+    INSERT INTO audit_logs(table_name, operation, record_id, changed_data)
+    VALUES (TG_TABLE_NAME, TG_OP, pk_value::bigint, data);
+
+    RETURN NULL;
+END;
+$$;
+
+--created trigger to call the trigger-function to execute and  insert record to log table for maintenance purpose. 
+CREATE or replace TRIGGER trig_roads_audit
+AFTER UPDATE OR DELETE ON roads
+FOR EACH ROW EXECUTE FUNCTION audit_trigger_func('road_id');
+
+CREATE or replace TRIGGER trig_hospitals_audit
+AFTER UPDATE OR DELETE ON hospitals
+FOR EACH ROW EXECUTE FUNCTION audit_trigger_func('hospital_id');
+
+CREATE or replace TRIGGER trig_schools_audit
+AFTER UPDATE OR DELETE ON schools
+FOR EACH ROW EXECUTE FUNCTION audit_trigger_func('school_id');
+
+CREATE or replace TRIGGER trig_parks_audit
+AFTER UPDATE OR DELETE ON parks
+FOR EACH ROW EXECUTE FUNCTION audit_trigger_func('park_id');
+
+CREATE or replace TRIGGER trig_water_bodies_audit
+AFTER UPDATE OR DELETE ON water_bodies
+FOR EACH ROW EXECUTE FUNCTION audit_trigger_func('water_id');
+
+CREATE or replace TRIGGER trig_city_boundary_audit
+AFTER UPDATE OR DELETE ON city_boundary
+FOR EACH ROW EXECUTE FUNCTION audit_trigger_func('id');
+
+CREATE or replace TRIGGER trig_devices_audit
+AFTER UPDATE OR DELETE ON devices
+FOR EACH ROW EXECUTE FUNCTION audit_trigger_func('device_id');
+
+CREATE or replace TRIGGER trig_device_locations_audit
+AFTER UPDATE OR DELETE ON device_locations
+FOR EACH ROW EXECUTE FUNCTION audit_trigger_func('location_id');
+
